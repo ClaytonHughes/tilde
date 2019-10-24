@@ -121,3 +121,9 @@ export LS_COLORS="$LS_COLORS:ow=38;5;130"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+## This could end terribly:
+
+# run batch files with cmd just by invoking their name from the command line
+  # this worked the first time but now is causing errors??
+  # sudo sh -c "echo :WindowsBatch:E::bat::/init: > /proc/sys/fs/binfmt_misc/register"
