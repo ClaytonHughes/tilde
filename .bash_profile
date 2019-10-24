@@ -19,7 +19,7 @@ shopt -s cdspell
 
 # colors, plzzz
     alias ls='ls -hFG --color=auto' # human readable, decorate, don't show groups, color if term
-    alias ll='ls -l'
+    alias ll='ls -alF'
     alias la='ls -A'
     alias l='ls'
 
@@ -36,6 +36,28 @@ shopt -s cdspell
     alias bd='. bd -si'
     # this next line only needs to be run once:
     # source /etc/bash_completion.d/bd
+
+find-up() {
+    curpath="$1" || return
+    if [[ $curpath == . ]]; then curpath=$(pwd); fi
+    shift 1 || return
+    while [[ $curpath != / ]];
+    do
+        find "$curpath" -maxdepth 1 -mindepth 1 "$@" || return
+        curpath="$(readlink -f "$curpath/..")" || return
+    done
+}
+
+find-ups() {
+    curpath="$1" || return
+    if [[ $curpath == . ]]; then curpath=$(pwd); fi
+    shift 1 || return
+    while [[ $curpath != / ]];
+    do
+        find "$curpath" -maxdepth 1 -mindepth 1 "$@" || return
+        curpath="$(realpath -s "$curpath/..")" || return
+    done
+}
 
 
 ### Set prompt:
@@ -97,6 +119,7 @@ function start {
         cmd.exe /C "$file"
     done
 }
+alias cmd='cmd.exe'
 
 function explorer {
     if [[ $# -eq 0 ]]; then
@@ -105,6 +128,8 @@ function explorer {
         explorer.exe $1 || true
     fi
 }
+
+alias explore='explorer'
 
 ### Windows Network Drives
 
