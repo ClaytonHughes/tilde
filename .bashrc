@@ -8,16 +8,14 @@ case $- in
       *) return;;
 esac
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
+# History improvements
 shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTCONTROL=ignoreboth # ignore lines starting with space and duplicates
+HISTSIZE=4096
+HISTFILESIZE=65536
+HISTIGNORE='l:ls:la:ll:fg:bg:history:explorer .'
+HISTTIMEFORMAT='%F %T '
+PROMPT_COMMAND="history -a;${PROMPT_COMMAND}"
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
