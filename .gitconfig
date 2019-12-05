@@ -28,5 +28,21 @@
 		; }; f"
 [color "diff"]
 	whitespace = red reverse
+	wsErrorHighlight = all
+[diff]
+	wsErrorHighlight = all
+
+
+# UnityYamlMerge will fall back to a normal merge tool for extensions that aren't .asset/.unity.
+# See mergespecfile.txt in the same folder as the .exe for details
+
+[merge]
+  tool = unityyamlmerge
+
+[mergetool "unityyamlmerge"]
+  trustExitCode = false
+  cmd = 'UnityYAMLMerge.exe' merge -p "$BASE" "$REMOTE" "$LOCAL" "$MERGED"
+
+
 [remote "origin"]
 	prune = true
