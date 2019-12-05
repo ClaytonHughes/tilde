@@ -79,7 +79,7 @@ find-ups() {
     # Pretty sure I used something like https://github.com/magicmonty/bash-git-prompt
     if [ -f ~/.git-bash-prompt/gitprompt.sh ]; then
         export GIT_PROMPT_ONLY_IN_REPO=1
-        
+
         export GIT_PROMPT_SHOW_STAGED_COUNT=1
         export GIT_PROMPT_SHOW_CHANGED_COUNT=1
         export GIT_PROMPT_SHOW_CONFLICTS_COUNT=0
