@@ -10,5 +10,23 @@
 	attributesfile = /home/clayton/.config/git/attributes
 [alias]
 	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	showfiles = show --name-status
+	alias = ! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /
+	pushup = ! git push -u origin $(git symbolic-ref --short HEAD)
+	last = log -1 HEAD
+	prune-local-branches = "! f() { \
+		git branch -vv | \
+		grep -E \"\\[origin/[[:graph:]]+: gone\\]\" | \
+		awk '{print $1}' | \
+		xargs -I % sh -c \
+			\"if [ \\\"%\\\" = \\\"*\\\" ]; \
+			then \
+				>&2 echo \\\"The local branch $(tput setaf 5)$(git rev-parse --abbrev-ref HEAD)$(tput sgr0) is currently checked out, but no longer exists on $(tput setaf 4)$(git for-each-ref --format='%(upstream)' "refs/heads/small-features" | sed -e "s~refs/remotes/\\\\\\(origin\\\\\\)/.*~\\\\1~")$(tput sgr0). It will not be pruned.\\\" ; \
+			else \
+				git branch -d % ; \
+			fi\" \
+		; }; f"
 [color "diff"]
 	whitespace = red reverse
+[remote "origin"]
+	prune = true
