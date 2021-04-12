@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Pads things to the right.
+# designed to be invoked with <stdout> | rev | rpad
+
+# Some voodoo, uses shell's COLUMNS variable.
+# Spaces between : and - are necessary 
+# I could reformat it, but... why
+
+c=${COLUMNS:=$(tput cols)}
+s=" ";while((${#s}<c));do s="$s  ";done
+while read line ; do
+  line="${s:0:$((c-(${#line}%c)))}$line"
+  while [ ! -z "$line" ] ; do
+    echo "${line: -$c}"
+    line="${line:0: -$c}"
+  done
+done

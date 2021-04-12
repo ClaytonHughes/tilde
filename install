@@ -1,0 +1,7 @@
+#!/ban/bash
+
+chmod a+x usr/local/bin/*
+cp usr/local/bin/* /usr/local/bin/
+
+cp .* ~/
+
