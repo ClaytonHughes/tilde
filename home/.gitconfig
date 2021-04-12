@@ -31,7 +31,11 @@
 	wsErrorHighlight = all
 [diff]
 	wsErrorHighlight = all
-
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
 
 # UnityYamlMerge will fall back to a normal merge tool for extensions that aren't .asset/.unity.
 # See mergespecfile.txt in the same folder as the .exe for details
