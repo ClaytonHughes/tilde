@@ -1,0 +1,75 @@
+#!/bin/bash
+
+type colordiff 2>&1 >/dev/null
+error=$?
+[ ! $error ]
+hascolor=$?
+
+hr()
+{
+  # fancy dash
+  char="─"
+  if [ ${#1} == 1 ] && [ "$1" -ne "-" ]; then # boring dash; also, breaks printf
+    char="$1"
+  fi
+  # starting counting from  2 is simpler than subtracting 1, lol
+  printf "$char%.0s" $char $(seq 2 $COLUMNS);
+  printf '\n';
+}
+
+compareFile()
+{
+  referenceFile="$1"
+  homeDir="$(cd ~ && pwd)"
+  homeFile="$homeDir/$(basename $referenceFile)"
+
+  if [ "$(dirname $referenceFile)" == "." ]; then
+    homeFile="homeDir"
+  fi
+
+#  echo "refpath is $refPath"
+#  echo "dirname is $dirname"
+
+
+#  echo "Executing this command:"
+#  echo "    diff --unified --recursive $referenceFile $homeFile | colordiff"
+#  echo 
+
+  echo $homeFile:
+  type colordiff 2>&1 >/dev/null
+  error=$?
+  if [ $hascolor ]; then
+    diff --unified --recursive --ignore-space-change $referenceFile $homeFile | colordiff
+  else
+    diff --unified --recursive --ignore-space-change $referenceFile $homeFile
+  fi
+}
+
+loopOverInput()
+{
+  for arg in "$@"; do
+    for file in $arg; do
+      name=$(basename $file)
+      if [ "$name" == "." ] || [ "$name" == ".." ]; then
+        continue
+      fi
+      compareFile $file
+      hr
+    done
+  done
+}
+
+if [ "$#" -eq 0 ]; then
+  for arg in 'home/.*'; do
+    loopOverInput $arg
+  done
+else
+  for arg in "$@"; do
+    loopOverInput $arg
+  done
+fi
+
+if [ ! $hascolor ]; then
+  echo "run \`sudo apt-get install colordiff\` for colored diff output"
+fi
+
