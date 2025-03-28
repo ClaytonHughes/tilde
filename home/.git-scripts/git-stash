@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+
+import sys
+import subprocess
+from collections import namedtuple
+
+def print_usage():
+    print('`git stash [push]` has been overridden to require a message.')
+    print('  It also includes untracked files by default. This can be overridden with `--no-include-untracked`.')
+    print()
+    print('usage:')
+    print('  git stash [push [<options>]] "MESSAGE"')
+    print('  git stash <other-verbs> [<options>] <arguments>, as in `git help stash`')
+    print()
+    print('Options: (in addition to the base commands)')
+    print('  --dry-run     print, but do not run, the final git command')
+    print('  --debug       print debugging messages for this script')
+
+_debug = '--debug' in sys.argv
+_dryrun = '--dry-run' in sys.argv or '-n' in sys.argv or '--dryrun' in sys.argv
+
+def main():
+    arguments = [x for x in sys.argv[1:] if x not in ["--debug", '--dry-run', '-n', '--dryrun']]
+    print_dbg('sys.argv: ' + str(sys.argv))
+    print_dbg('arguments: ' + str(arguments))
+
+    if len(arguments) <= 0:
+        print_dbg('no arguments provided')
+        print_usage()
+        exit(1)
+
+    # Check for help-like arguments/options as primary command, show our help, and suggest of `git help stash`
+    # (Also displaying the `git stash --help` would be confusing)
+    if arguments[0] in ['--help', '-h', 'help', '/?']:
+        print_dbg('`' + arguments[0] + '` at first argument')
+        print_usage()
+        print()
+        print('Or did you mean `git help stash`?')
+        exit(0)
+
+    # Checks for help-like commands after the first one, which are probably intended for git
+    git_help_request = [ArgMatch(x,idx) for idx,x in enumerate(arguments[1:]) if x in ['--help', '-h', 'help', '/?']]
+    if 0 < len(git_help_request):
+        print_dbg(git_help_request[-1])
+        arguments = [ 'help', 'stash' ]
+
+    # Do some actual parsing and transformation
+    elif arguments[0] not in ignored_verbs:
+        implied_push = arguments[0] not in ['push', 'save']
+
+    # Are there file args?
+        message_idx = len(arguments) - 1 if '--' not in arguments else arguments.index('--') - 1
+        print_dbg('message_idx is ' + str(message_idx) + ' which is "' + arguments[message_idx] + '"')
+        message = arguments[message_idx]
+        post_msg = arguments[message_idx+1:]
+        print_dbg('message: "' + message + '"')
+        print_dbg('post_msg: ' + str(post_msg))
+
+        if implied_push:
+          print_dbg('no verb given; implied push')
+          arguments = ['--include-untracked', *arguments[:message_idx], '--message', message, *post_msg]
+        else:
+          print_dbg('verb supplied: ' + arguments[0])
+          arguments = [arguments[0], '--include-untracked', *arguments[1:message_idx], '--message', message, *post_msg]
+
+    run_args = ['git', 'stash'] + arguments
+    print_dry('running\n         `' + ' '.join(cmd_escape(run_args)) + '`')
+
+    proc = subprocess.run(run_args)
+    sys.exit(proc.returncode)
+
+ignored_verbs = [
+    'list','show','drop','pop','apply','branch',
+    # we intercept 'push', implied push, and 'save'
+    'clear',
+    # these do take message, but are plumbing rather than porcelain, so best to leave them alone:
+    'create','store'
+    ]
+
+class ArgMatch:
+    def __init__(self, arg, index):
+        self.arg = arg
+        self.index = index + 1
+
+    def __str__(self):
+        return 'argument `' + self.arg + '` at position `' + str(self.index) + '.'
+
+    def __repr__(self):
+        return 'ArgMatch(' + self.arg+ ',' + str(self.index - 1) + ')'
+
+def print_dbg(*args, **kwargs):
+    if _debug:
+        print('  DEBUG: ' + ' '.join(map(str,args)), **kwargs)
+
+def print_dry(*args, **kwargs):
+    if _dryrun:
+        print('  DRYRUN: ' + ' '.join(map(str,args)), **kwargs)
+    elif _debug:
+        print_dbg(*args, **kwargs)
+    
+
+def cmd_escape(lst):
+    return map(lambda x: '"' + x + '"' if ' ' in x else x, lst)
+
+if __name__ == '__main__':
+    main()
+

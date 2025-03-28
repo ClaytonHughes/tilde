@@ -1,0 +1,24 @@
+#!/bin/bash
+
+case "$1" in
+  docker-cli-plugin-metadata|--docker-cli-plugin-metadata)
+    cat <<- EOF
+	{
+	  "SchemaVersion": "0.1.0",
+	  "Vendor": "https://github.com/ClaytonHughes/docker-cli-plugins",
+	  "Version": "v0.1.0",
+	  "ShortDescription": "Removes all running containers and docker-compose projects."
+	}
+	EOF
+    exit
+    ;;
+  help|--help|-help|-h)
+    echo "Removes all running docker containers and docker-compose projects";
+    exit
+    ;;
+
+  *)
+    break;
+esac
+
+docker compose ls --all --quiet | xargs docker compose --project-name '{}' down --remove-orphans

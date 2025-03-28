@@ -1,0 +1,75 @@
+	# Give an ENV var for Windows Programs to check if they're being called from WSL and need to do some compat stuff:
+	export FROMWSL=1
+	export WSLENV=$WSLENV:FROMWSL/w
+
+	function start {
+		for file in "$@"
+		do
+			cmd.exe /C "$file"
+		done
+	}
+
+	alias cmd='cmd.exe'
+
+	function explorer {
+		if [[ $# -eq 0 ]]; then
+			explorer.exe . || true
+		else
+			explorer.exe $(wslpath -w $1) || true
+		fi
+	}
+	alias explore='explorer'
+
+### Windows Network Drives
+
+	function mkshare {
+
+		# check for invalid params/help
+		if [[ $# -ne 2 ]]; then
+			echo "mkshare [share-url] [mnt-dir]"
+			echo "	mounts the network share 'share-url' to /mnt/[mnt-dir]'"
+			return 0
+		fi
+
+		# check if mount-point is a file
+		if [[ -f "/mnt/$2" ]]; then
+			echo "error: /mnt/$2 is a file, we cannot mount onto it" 1>&2
+			return 1;
+		fi
+
+		# check if source is already mounted.
+		# this might not be desirable behaviour; I guess we could want to mount the thing multiple times?
+		if (findmnt -rno SOURCE,TARGET "$1" > /dev/null); then
+			echo "$1 is mounted to $(findmnt -no TARGET $1)"
+			return 0;
+		fi
+
+		# check if target is already mounted
+		if (findmnt -rno SOURCE,TARGET "$2" > /dev/null); then
+			echo "already mounted to $(findmnt -no SOURCE $2)"
+			return 0;
+		fi
+
+		# check if we need to create directory
+		if [[ ! -d "/mnt/$2" ]]; then
+			echo "creating directory /mnt/$2"
+			sudo mkdir "/mnt/$2"
+		fi
+
+		if (sudo mount -t drvfs $1 /mnt/$2); then
+			echo "$1 is mounted to /mnt/$2"
+		else
+			echo "$1 is not mounted"
+		fi
+	}
+
+	# defined shares in ~/.secrets:
+	# shares=$(
+	#   '\\some\network\path' 'mountname'
+	#   '\\another\network\path' 'another-mount'
+	# )
+	#
+	for ((i=0; i<${#shares[@]}; i+=2)); do
+		mkshare "${shares[i]}" "${shares[i+1]}"
+	done
+
