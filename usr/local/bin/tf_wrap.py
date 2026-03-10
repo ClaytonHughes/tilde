@@ -73,6 +73,19 @@ def _dquote_if_needed(value):
     return value
 
 
+# terraform cli has the wildest conventions:
+def _fix_terraform_cli_oddities(argv):
+    def _fix_tacks(arg):
+        # despite everything else being a subcommand, 'help' isn't
+        if arg == 'help':
+            return '-help'
+        # Terraform tends to support long arguments in the traditional format, but there is (or at least was) a case
+        # or two where it breaks. Anyway, better to use the documented values:
+        if arg.startswith('--') and 2 < len(arg):
+            return arg[1:]
+        return arg
+    return [_fix_tacks(x) for x in argv[1:]]
+
 
 def main():
     start = datetime.utcnow()
@@ -120,11 +133,9 @@ def main():
         stdout_cb(f"{_ansi_grey}{' '.join(_dquote_if_needed(a) for a in cli_args)}{_ansi_reset}\n")
         return command_runner(cli_args, stdout=stdout_cb, stderr=stderr_cb, method='poller', split_streams=True, check_interval=0.01)
 
-    if '--test' in sys.argv:
-        exit_code, stdout, stderr = run(['/home/clayton/git-tilde/usr/local/a.out'])
-        return exit_code
-    else:
-        exit_code, stdout, stderr = run(['terraform'] + sys.argv[1:])
+    # freaking syntax, man:
+    translated_argv = _fix_terraform_cli_oddities(sys.argv)
+    exit_code, stdout, stderr = run(['terraform'] + translated_argv)
 
     if 0 < lines_saved or 0 < verbose_lines_saved:
         print(f'\nSaved you {_nouns["lines"].pluralize(lines_saved)} of absolute spam and {_nouns["lines"].pluralize(verbose_lines_saved)} of noise you likely didn\'t want.')

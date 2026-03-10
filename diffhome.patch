@@ -1,0 +1,891 @@
+/home/clayton/.bash_profile:
+[0;31m--- home/.bash_profile	2025-01-29 14:27:26.175785206 -0800[0;0m
+[0;32m+++ /home/clayton/.bash_profile	2025-10-02 18:45:39.590488541 -0700[0;0m
+[0;36m@@ -1,53 +1,168 @@[0;0m
+[0;32m+#!/usr/bin/env bash[0;0m
+[0;32m+[0;0m
+[0;32m+# Note to self: for interactive login shells (i.e. terminals with my user), .bash_profile gets loaded.[0;0m
+[0;32m+# .bashrc is what gets loaded for interactive NON-login shells (e.g. during sudo)[0;0m
+[0;0m source ~/.bashrc[0;0m
+[0;0m [0;0m
+[0;0m # quietly set up ssh key (mostly for github)[0;0m
+[0;31m-	eval $(ssh-agent -s) &>/dev/null[0;0m
+[0;32m+    eval "$(ssh-agent -s)" &>/dev/null[0;0m
+[0;0m 	ssh-add ~/.ssh/id_rsa &>/dev/null[0;0m
+[0;0m [0;0m
+[0;31m-### Friendlier Shell[0;0m
+[0;31m-[0;0m
+[0;31m-	# git completion[0;0m
+[0;31m-		# i think this was only needed once:[0;0m
+[0;32m+# git completion[0;0m
+[0;32m+    # i think this is unneccesary:[0;0m
+[0;0m 		# source ~/.git-completion.bash[0;0m
+[0;0m [0;0m
+[0;31m-	# don't use ^D to exit the terminal[0;0m
+[0;32m+# PERFORCE?[0;0m
+[0;32m+    export P4PORT='\\vt-redsrc01:1666'[0;0m
+[0;32m+[0;0m
+[0;32m+# Friendlier Shell[0;0m
+[0;32m+[0;0m
+[0;32m+    # don't use ^D to exit[0;0m
+[0;0m 		set -o ignoreeof[0;0m
+[0;0m [0;0m
+[0;0m 	# ignore small typos in cd[0;0m
+[0;0m 		shopt -s cdspell[0;0m
+[0;0m [0;0m
+[0;31m-	# `ls` is too many characters[0;0m
+[0;32m+    # let windows programs know we came from WSL[0;0m
+[0;32m+    export FROMWSL=1[0;0m
+[0;32m+    export WSLENV=$WSLENV:FROMWSL/w[0;0m
+[0;32m+[0;0m
+[0;32m+    # ls is hard...[0;0m
+[0;32m+    alias ls='ls --human-readable --classify --no-group --group-directories-first --color=auto'[0;0m
+[0;32m+    # short[0;0m
+[0;0m 		alias l='ls'[0;0m
+[0;31m-		alias ls='ls --human-readable --classify --group-directories-first --color=auto'[0;0m
+[0;31m-		alias la='ls --almost-all' # include dotfiles, but not ./ and ../[0;0m
+[0;31m-[0;0m
+[0;31m-		alias ll='ls --no-group --format=long'[0;0m
+[0;31m-		alias lla='ls --almost-all --format=long'[0;0m
+[0;31m-		alias lll='ll --almost-all'[0;0m
+[0;31m-[0;0m
+[0;32m+    alias la='ls --almost-all'[0;0m
+[0;32m+    # long[0;0m
+[0;32m+    alias ll='ls --format=long'[0;0m
+[0;32m+    alias lla='la --format=long'[0;0m
+[0;32m+    alias lll='lla'[0;0m
+[0;32m+    # by size[0;0m
+[0;0m 		alias lz='ll --sort=size'[0;0m
+[0;0m 		alias llz='lla --sort=size'[0;0m
+[0;0m [0;0m
+[0;0m 	# colors, plzzz[0;0m
+[0;0m 		alias diff='colordiff -u' # sudo apt-get install colordiff[0;0m
+[0;31m-		alias less='less --RAW-CONTROL-CHARACTERS --HILITE-UNREAD' # ... but only the color control characters, i.e. the form "ESC [ color-def m".[0;0m
+[0;32m+    alias less='less -r'[0;0m
+[0;0m 		alias grep='grep --color'[0;0m
+[0;0m [0;0m
+[0;0m 	# i can't keep this straight:[0;0m
+[0;31m-		alias whence='type -a' # -a lists all instances. -P just the first on the path[0;0m
+[0;32m+    alias whence='type -a' # -a lists all instances. -P just the first on path[0;0m
+[0;0m 		alias where='whereis'[0;0m
+[0;32m+    # or this:[0;0m
+[0;0m 		alias cls='clear'[0;0m
+[0;0m [0;0m
+[0;31m-# Navigation convenience[0;0m
+[0;32m+    # dockerrrr[0;0m
+[0;32m+function doco {[0;0m
+[0;32m+	if [ -f "$HOME/.docker/compose-cli-plugins/$1" ]; then[0;0m
+[0;32m+		local plugin=$1[0;0m
+[0;32m+		shift 1[0;0m
+[0;32m+		"$HOME/.docker/compose-cli-plugins/$plugin" "$@"[0;0m
+[0;32m+	else[0;0m
+[0;32m+		docker compose "$@"[0;0m
+[0;32m+	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# razzn frazzn ragrl bargl[0;0m
+[0;32m+function newlines {[0;0m
+[0;32m+	local filelist[0;0m
+[0;32m+	filelist=$(mktemp)[0;0m
+[0;32m+	find . -type f -ipath "*${*}" > "$filelist"[0;0m
+[0;32m+	echo "Converting $(<"$filelist" wc -l) files."[0;0m
+[0;32m+	<"$filelist" xargs dos2unix --quiet[0;0m
+[0;32m+	rm "$filelist"[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# update application default credentials[0;0m
+[0;32m+function adc {[0;0m
+[0;32m+	gcloud auth application-default login && \[0;0m
+[0;32m+	cp ~/.config/gcloud/application_default_credentials.json \[0;0m
+[0;32m+	/mnt/c/Users/Clayton/AppData/Roaming/gcloud/[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# curl. Freaking newline[0;0m
+[0;32m+function curl {[0;0m
+[0;32m+	/usr/bin/env curl "$@"[0;0m
+[0;32m+	local result="$?"[0;0m
+[0;32m+	echo[0;0m
+[0;32m+	return $result[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# I was experimenting here at one point. I couldn't tell you which is correct.[0;0m
+[0;32m+# probably this one?[0;0m
+[0;32m+function tf {[0;0m
+[0;32m+	if [ "$1" = "help" ]; then[0;0m
+[0;32m+		shift 1[0;0m
+[0;32m+		tf -help "$@"[0;0m
+[0;32m+	elif [ "$1" = "redo" ]; then[0;0m
+[0;32m+		tf init && tf validate[0;0m
+[0;32m+	else[0;0m
+[0;32m+		/home/clayton/git-tilde/usr/local/bin/tf_shush.py --start "$@" && \[0;0m
+[0;32m+		  terraform "$@" 2>&1 | \[0;0m
+[0;32m+		  /home/clayton/git-tilde/usr/local/bin/tf_shush.py;[0;0m
+[0;32m+		return "${PIPESTATUS[0]}"[0;0m
+[0;32m+	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# I think tf_shush is the better impl, but I don't 100% remember[0;0m
+[0;32m+function tf2 {[0;0m
+[0;32m+	if [ "$1" = "redo" ]; then[0;0m
+[0;32m+		terraform init && terraform validate[0;0m
+[0;32m+	else[0;0m
+[0;32m+		/home/clayton/git-tilde/usr/local/bin/tf_wrap.py "$@"[0;0m
+[0;32m+		return $?[0;0m
+[0;32m+	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# again: posix is hard[0;0m
+[0;32m+function lnhelp {[0;0m
+[0;32m+	echo "ln actual-file [link-name]"[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# Sexy prompt[0;0m
+[0;32m+function orange_conspiracy {[0;0m
+[0;32m+	export GIT_PROMPT_THEME=Orange_Conspiracy[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+function count_substrings {[0;0m
+[0;32m+	if [[ "$#" -ne 2 ]]; then[0;0m
+[0;32m+		echo "USAGE: count_substrings [needle] [haystack]"[0;0m
+[0;32m+		false[0;0m
+[0;32m+	else[0;0m
+[0;32m+		local temp_str=${2//"$1"/}[0;0m
+[0;32m+		echo $(( (${#2} - ${#temp_str}) / ${#1} ))[0;0m
+[0;32m+	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# Sometimes you just gotta keep trying shit[0;0m
+[0;32m+# i bet this'll break if you don't give it a command... maybe it should use the last command entered?[0;0m
+[0;32m+#  ala `fuck` (https://github.com/nvbn/thefuck)[0;0m
+[0;32m+function workplz {[0;0m
+[0;32m+	local last_command[0;0m
+[0;32m+	if [[ "$#" -eq 0 ]]; then[0;0m
+[0;32m+		local taillen=2 # the one we want + this function[0;0m
+[0;32m+		if [[ -v HISTTIMEFORMAT ]]; then[0;0m
+[0;32m+			(( taillen+=1 )) # setting HISTTIMEFORMAT adds an epoch timestamp before each entry[0;0m
+[0;32m+		fi[0;0m
+[0;32m+		last_command="$(tail -n$taillen "${HISTFILE:-$HOME/.bash_history}" | head -n 1)"[0;0m
+[0;32m+	else[0;0m
+[0;32m+		last_command="$*"[0;0m
+[0;32m+	fi[0;0m
+[0;32m+	while ! $last_command[0;0m
+[0;32m+	do[0;0m
+[0;32m+		echo "command \`$*\` failed. Retrying in 10s"[0;0m
+[0;32m+		sleep 10[0;0m
+[0;32m+	done[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# navigation convenience[0;0m
+[0;0m 	# bd - see https://github.com/vigneshwaranr/bd[0;0m
+[0;0m 	alias bd='. bd -si'[0;0m
+[0;0m 	# this next line only needs to be run once:[0;0m
+[0;0m 	# source /etc/bash_completion.d/bd[0;0m
+[0;0m [0;0m
+[0;31m-	# Works like "find", but looks at parents.[0;0m
+[0;31m-	find-up() {[0;0m
+[0;0m [0;0m
+[0;31m-		curpath="$1" || return[0;0m
+[0;32m+# I have no memory of this function[0;0m
+[0;32m+find-up() {[0;0m
+[0;0m 		curpath="$1" || return[0;0m
+[0;0m 		if [[ $curpath == . ]]; then curpath=$(pwd); fi[0;0m
+[0;0m 		shift 1 || return[0;0m
+[0;36m@@ -56,79 +171,129 @@[0;0m
+[0;0m 			find "$curpath" -maxdepth 1 -mindepth 1 "$@" || return[0;0m
+[0;0m 			curpath="$(readlink -f "$curpath/..")" || return[0;0m
+[0;0m 		done[0;0m
+[0;31m-	}[0;0m
+[0;32m+}[0;0m
+[0;0m [0;0m
+[0;31m-	# Works like "find", but looks at parents. Does not follow symlinks[0;0m
+[0;31m-	find-ups() {[0;0m
+[0;32m+# I have no memory of this function[0;0m
+[0;32m+find-ups() {[0;0m
+[0;0m 		curpath="$1" || return[0;0m
+[0;0m 		if [[ $curpath == . ]]; then curpath=$(pwd); fi[0;0m
+[0;0m 		shift 1 || return[0;0m
+[0;0m 		while [[ $curpath != / ]];[0;0m
+[0;0m 		do[0;0m
+[0;0m 			find "$curpath" -maxdepth 1 -mindepth 1 "$@" || return[0;0m
+[0;31m-			curpath="$(realpath --strip "$curpath/..")" || return[0;0m
+[0;32m+        curpath="$(realpath -s "$curpath/..")" || return[0;0m
+[0;0m 		done[0;0m
+[0;31m-	}[0;0m
+[0;31m-[0;0m
+[0;31m-### Tools with crappy CLIs[0;0m
+[0;32m+}[0;0m
+[0;0m [0;0m
+[0;31m-	# They used to support plugins but no got rid of it?![0;0m
+[0;31m-	if [ -n "$(type docker)" ]; then[0;0m
+[0;31m-		function doco {[0;0m
+[0;31m-			doco_plugins_folder=$"$HOME/.docker/compose-cli-plugins"[0;0m
+[0;31m-			if [ -f "${doco_plugins_folder}/$1" ]; then[0;0m
+[0;31m-				local plugin=$1[0;0m
+[0;31m-				shift 1[0;0m
+[0;31m-				${local_pluns_folder}/${plugin} "$@"[0;0m
+[0;31m-			else[0;0m
+[0;31m-				docker compose "$@"[0;0m
+[0;31m-			fi[0;0m
+[0;31m-		}[0;0m
+[0;31m-	fi[0;0m
+[0;0m [0;0m
+[0;31m-	# razzn frazzn ragrl bargl[0;0m
+[0;31m-	# why are you failing .editorconfig?[0;0m
+[0;31m-	function newlines {[0;0m
+[0;31m-		temp=$(mktemp)[0;0m
+[0;31m-		find . -type f -iname "*${@}" > "$temp"[0;0m
+[0;31m-		echo "Converting $(<$temp wc -l) files."[0;0m
+[0;31m-		<$temp xargs dos2unix --quiet[0;0m
+[0;31m-		rm $temp[0;0m
+[0;31m-	}[0;0m
+[0;0m [0;0m
+[0;32m+######## WAIT A FREAKING MINUTE[0;0m
+[0;0m [0;0m
+[0;32m+# TEST (the exe) DOESN'T HAVE A == ARGUMENT. Is this using the builtin?[0;0m
+[0;32m+# We should prefer builtins over executables cuz they're faster.[0;0m
+[0;0m [0;0m
+[0;0m ### Set prompt:[0;0m
+[0;31m-	build_prompt() {[0;0m
+[0;31m-		# Shamelessly stolen from http://selena.deckelmann.usesthis.com/ (and improved/broken?)[0;0m
+[0;31m-		export PS1="\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w\n\`if [ \$? == 0 ]; then echo \[\e[36m\]\(\=; else echo \[\e[31m\]\)\=; fi\`\[\e[0m\] "[0;0m
+[0;31m-		export GIT_PROMPT_START="\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w "[0;0m
+[0;31m-		export GIT_PROMPT_END="\n\`if [ \$? == 0 ]; then echo \[\e[36m\]\(\=; else echo \[\e[31m\]\)\=; fi\`\[\e[0m\] "[0;0m
+[0;31m-		# unfortunately, this gums up if there are quotes in the continuation:[0;0m
+[0;31m-		export PS2="\`if [ \$? == 0 ]; then echo \[\e[36m\] \>; else echo \[\e[31m\] \>; fi\`\[\e[0m\] "[0;0m
+[0;31m-	}[0;0m
+[0;31m-	build_prompt[0;0m
+[0;32m+[0;0m
+[0;32m+############## old version because huh[0;0m
+[0;32m+[0;0m
+[0;32m+#build_prompt() {[0;0m
+[0;32m+#	# Inspired by http://selena.deckelmann.usesthis.com[0;0m
+[0;32m+#	# PS1 notes:[0;0m
+[0;32m+#		# \[ and \] indicate the start and stop of non-printing characters to the terminal, so it can wordwrap better.[0;0m
+[0;32m+#		# The first section, (identified by the sequence '\e]0;') is for the title bar. It terminates with \a[0;0m
+[0;32m+#		# For whatever reason, the 'if;then;else;fi' syntax works when evaluating PS1 but not PS2...[0;0m
+[0;32m+#		# `test && x || y` works in both places, though, so we'll use that consistently:[0;0m
+[0;32m+#	local title_bar='\[\e]0;\w\a\]'[0;0m
+[0;32m+#	local wsl_distro_name="+$(lsb_release --id 2>/dev/null | cut --fields 2)"[0;0m
+[0;32m+#	local wsl_distro_ver="$(lsb_release --release 2>/dev/null | cut --fields 2 | cut --delimiter='.' --fields 1)"[0;0m
+[0;32m+#	local main_line='\[\e[0m\e[32m\]\u@\h'"${wsl_distro_name}.${wsl_distro_ver}"'\[\e[33m\]\w'[0;0m
+[0;32m+#	# shellcheck disable=SC2016 # the backticks are intentionally not evaluated here[0;0m
+[0;32m+#	local prev_exit='\n`test "$?" == 0 && echo "\[\e[36m\](=" || echo "\[\e[31m\])="`\[\e[0m\] '[0;0m
+[0;32m+#	export PS1=${title_bar}${main_line}${prev_exit}[0;0m
+[0;32m+#	export PS2='`test "$?" == 0 && echo \[\e[36m\] || echo \[\e[31m\]` = \[\e[0m\]'[0;0m
+[0;32m+#[0;0m
+[0;32m+#	# Dynamic PS1 in git directories. Presumably PROMPT_COMMAND is set to something that uses these elsewhere[0;0m
+[0;32m+#	export GIT_PROMPT_START="${title_bar}${main_line} "[0;0m
+[0;32m+#	export GIT_PROMPT_END=${prev_exit}[0;0m
+[0;32m+#[0;0m
+[0;32m+#	# old values:[0;0m
+[0;32m+#	# export GIT_PROMPT_START="\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w "[0;0m
+[0;32m+#	# export GIT_PROMPT_END="\n\`if [ \"\$?\" == 0 ]; then echo \[\e[36m\]\(\=; else echo \[\e[31m\]\)\=; fi\`\[\e[0m\] "[0;0m
+[0;32m+#}[0;0m
+[0;32m+[0;0m
+[0;32m+# version with (better?) if/then/else/fi[0;0m
+[0;32m+[0;0m
+[0;32m+_ps_prev_exit() {[0;0m
+[0;32m+	local ps_color[0;0m
+[0;32m+	local exit_indicator[0;0m
+[0;32m+	local ps_reset='\e[0m'[0;0m
+[0;32m+	if [ "$1" -eq 0 ]; then[0;0m
+[0;32m+		ps_color='\e[36m'[0;0m
+[0;32m+		exit_indicator='(='[0;0m
+[0;32m+	else[0;0m
+[0;32m+		ps_color='\e[31m'[0;0m
+[0;32m+		exit_indicator=')='[0;0m
+[0;32m+	fi[0;0m
+[0;32m+	printf "%b%s%b" "${ps_color}" "${exit_indicator}" "${ps_reset}"[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+build_prompt() {[0;0m
+[0;32m+	# Inspired by http://selena.deckelmann.usesthis.com[0;0m
+[0;32m+	# PS1 notes:[0;0m
+[0;32m+		# \[ and \] indicate the start and stop of non-printing (zero-width)[0;0m
+[0;32m+		# characters to the terminal, so it can wordwrap better.[0;0m
+[0;32m+		# The first section is for the title bar (tab name)[0;0m
+[0;32m+	local zw_start='\['[0;0m
+[0;32m+	local zw_end='\]'[0;0m
+[0;32m+	local title_start='\e]0;'[0;0m
+[0;32m+	local title_end='\a'[0;0m
+[0;32m+	local title_bar="${zw_start}${title_start}"'\w'"${title_end}${zw_end}"[0;0m
+[0;32m+	local reset='\e[0m'[0;0m
+[0;32m+	local green='\e[32m'[0;0m
+[0;32m+	local red='\e[31m'[0;0m
+[0;32m+	local cyan='\e[36m'[0;0m
+[0;32m+	local brown='\e[33m'[0;0m
+[0;32m+	local wsl_distro_name[0;0m
+[0;32m+	wsl_distro_name="$(lsb_release --id 2>/dev/null | cut --fields 2)"[0;0m
+[0;32m+	local wsl_distro_ver[0;0m
+[0;32m+	wsl_distro_ver="$(lsb_release --release 2>/dev/null | cut --fields 2 | cut --delimiter='.' --fields 1)"[0;0m
+[0;32m+	local main_line="${zw_start}${reset}${green}${zw_end}"'\u@\h'[0;0m
+[0;32m+	main_line+="+${wsl_distro_name}.${wsl_distro_ver}"[0;0m
+[0;32m+	main_line+="${zw_start}${brown}${zw_end}"' \w '[0;0m
+[0;32m+	main_line+="${zw_start}${reset}${zw_end}"[0;0m
+[0;32m+	# shellcheck disable=SC2035 # Intentional. This will get evaluated later[0;0m
+[0;32m+	local prev_exit='\n$(if [ "$?" -eq 0 ]; then echo "'"${zw_start}${cyan}${zw_end}"'(=";'[0;0m
+[0;32m+	prev_exit+='else echo "'"${zw_start}${red}${zw_end}"')="; fi) '"${zw_start}${reset}${zw_end}"[0;0m
+[0;32m+	export PS1="${title_bar}${main_line}${prev_exit}"[0;0m
+[0;32m+	# For whatever reason, 'if;then;else;fi' works when evaluating PS1 but PS2 needs an extra `eval`[0;0m
+[0;32m+	export PS2='$(eval "if [ "$?" -eq 0 ]; then echo "\[\e[36m\]"; else echo "\[\e[31m\]"; fi") = \[\e[0m\]'[0;0m
+[0;32m+[0;0m
+[0;32m+	# Dynamic PS1 in git directories. Presumably PROMPT_COMMAND is set to something that uses these elsewhere[0;0m
+[0;32m+	export GIT_PROMPT_START="${title_bar}${main_line} "[0;0m
+[0;32m+	export GIT_PROMPT_END="${prev_exit}"[0;0m
+[0;32m+[0;0m
+[0;32m+	# old values:[0;0m
+[0;32m+	# export GIT_PROMPT_START="\[\e]0;\w\a\]\[\e[32m\]\u@\h \[\e[33m\]\w "[0;0m
+[0;32m+	# export GIT_PROMPT_END="\n\`if [ \"\$?\" == 0 ]; then echo \[\e[36m\]\(\=; else echo \[\e[31m\]\)\=; fi\`\[\e[0m\] "[0;0m
+[0;32m+}[0;0m
+[0;32m+build_prompt[0;0m
+[0;0m [0;0m
+[0;0m 	# add git_prompt() fn available for PS1[0;0m
+[0;0m 	# Pretty sure I used something like https://github.com/magicmonty/bash-git-prompt[0;0m
+[0;0m 	if [ -f ~/.git-bash-prompt/gitprompt.sh ]; then[0;0m
+[0;0m 		export GIT_PROMPT_ONLY_IN_REPO=1[0;0m
+[0;32m+[0;0m
+[0;0m 		export GIT_PROMPT_SHOW_STAGED_COUNT=1[0;0m
+[0;0m 		export GIT_PROMPT_SHOW_CHANGED_COUNT=1[0;0m
+[0;0m 		export GIT_PROMPT_SHOW_CONFLICTS_COUNT=0[0;0m
+[0;0m 		export GIT_PROMPT_SHOW_UNTRACKED_COUNT=1[0;0m
+[0;31m-		export GIT_PROMPT_SHOW_STASHED_COUNT=1[0;0m
+[0;31m-		export GIT_PROMPT_SHOW_STASHED_COUNT=1[0;0m
+[0;31m-		export GIT_PROMPT_THEME=Consolas_Symbology[0;0m
+[0;32m+        export GIT_PROMPT_SHOW_STASHED_COUNT=0[0;0m
+[0;32m+[0;0m
+[0;32m+        export GIT_PROMPT_THEME=Fira_Symbology[0;0m
+[0;0m 		source ~/.git-bash-prompt/gitprompt.sh[0;0m
+[0;0m 	else[0;0m
+[0;0m 		echo "Could not load git-bash-prompt!" 1>&2[0;0m
+[0;0m 	fi[0;0m
+[0;31m-	# Pretty colors[0;0m
+[0;31m-	function orange_conspiracy {[0;0m
+[0;31m-		 export GIT_PROMPT_THEME=Orange_Conspiracy[0;0m
+[0;31m-	}[0;0m
+[0;31m-[0;0m
+[0;0m [0;0m
+[0;0m     # Semi-official git one. Not very sexy: https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh, I guess?[0;0m
+[0;0m     #if [ -f ~/.git-prompt.sh ]; then[0;0m
+[0;36m@@ -149,9 +314,125 @@[0;0m
+[0;0m     #    }[0;0m
+[0;0m     #fi[0;0m
+[0;0m [0;0m
+[0;31m-### Windows (WSL)[0;0m
+[0;31m-	# There's tons of ways to detect if we're on WSL. -- see https://superuser.com/a/1749811[0;0m
+[0;31m-	# I'm not doing anything wild, so this should be pretty dang reliable:[0;0m
+[0;31m-	if [ -f '/proc/sys/fs/binfmt_misc/WSLInterop' ]; then[0;0m
+[0;31m-		source ~/.bash_profile_wsl_extras[0;0m
+[0;32m+### Windows[0;0m
+[0;32m+function start {[0;0m
+[0;32m+    for file in "$@"[0;0m
+[0;32m+    do[0;0m
+[0;32m+        cmd.exe /C "$file"[0;0m
+[0;32m+    done[0;0m
+[0;32m+}[0;0m
+[0;32m+alias cmd='cmd.exe'[0;0m
+[0;32m+[0;0m
+[0;32m+function run {[0;0m
+[0;32m+    cmd.exe /C "$@"[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+function explorer {[0;0m
+[0;32m+    if [[ "$#" -eq 0 ]]; then[0;0m
+[0;32m+        explorer.exe "$(wslpath -w .)" || true[0;0m
+[0;32m+    else[0;0m
+[0;32m+        explorer.exe "$(wslpath -w "$1")" || true[0;0m
+[0;32m+    fi[0;0m
+[0;32m+}[0;0m
+[0;32m+alias explore='explorer'[0;0m
+[0;32m+[0;0m
+[0;32m+function vscode {[0;0m
+[0;32m+    local exe_path='/mnt/c/Program Files/Microsoft VS Code/Code.exe'[0;0m
+[0;32m+    if [[ "$#" -eq 0 ]]; then[0;0m
+[0;32m+#   Can't remote to 16.04; it's too old[0;0m
+[0;32m+#        "$exe_path" --remote "wsl+$WSL_DISTRO_NAME" . &[0;0m
+[0;32m+        "$exe_path" "$(wslpath -w .)" & >/dev/null[0;0m
+[0;32m+    else[0;0m
+[0;32m+#        "$exe_path" --remote "wsl+$WSL_DISTRO_NAME" "$1" &[0;0m
+[0;32m+        "$exe_path" "$(wslpath -w "$1")" & >/dev/null[0;0m
+[0;0m 	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+    # Windows Network Drives[0;0m
+[0;32m+function mkshare {[0;0m
+[0;32m+[0;0m
+[0;32m+    # check for invalid params/help[0;0m
+[0;32m+    if [[ $# -ne 2 ]]; then[0;0m
+[0;32m+        echo "mkshare [share-url] [mnt-dir]"[0;0m
+[0;32m+        echo "    mounts the network share 'share-url' to /mnt/[mnt-dir]'"[0;0m
+[0;32m+        return 0[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    # check if mount-point is a file[0;0m
+[0;32m+    if [[ -f "/mnt/$2" ]]; then[0;0m
+[0;32m+        echo "error: /mnt/$2 is a file, we cannot mount onto it" 1>&2 [0;0m
+[0;32m+        return 1;[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    # check if source is already mounted.[0;0m
+[0;32m+    # this might not be desirable behaviour; I guess we could want to mount the thing multiple times?[0;0m
+[0;32m+    if (findmnt -rno SOURCE,TARGET "$1" > /dev/null); then[0;0m
+[0;32m+        echo "$1 is mounted to $(findmnt -no TARGET "$1")"[0;0m
+[0;32m+        return 0;[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    # check if target is already mounted[0;0m
+[0;32m+    if (findmnt -rno SOURCE,TARGET "$2" > /dev/null); then[0;0m
+[0;32m+        echo "already mounted to $(findmnt -no SOURCE "$2")"[0;0m
+[0;32m+        return 0;[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    # check if we need to create directory[0;0m
+[0;32m+    if [[ ! -d "/mnt/$2" ]]; then[0;0m
+[0;32m+        echo "creating directory /mnt/$2"[0;0m
+[0;32m+        sudo mkdir "/mnt/$2"[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    if (sudo mount -t drvfs "$1" "/mnt/$2"); then[0;0m
+[0;32m+        echo "$1 is mounted to /mnt/$2"[0;0m
+[0;32m+    else[0;0m
+[0;32m+        echo "$1 is not mounted"[0;0m
+[0;32m+    fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+function start_at_home {[0;0m
+[0;32m+	# Ensure we're HOME[0;0m
+[0;32m+	local startdir[0;0m
+[0;32m+		startdir=$(bash --rcfile <(echo "PS1='\w'") -i <<<'' 2>&1 | head -1)[0;0m
+[0;32m+	if [ "$startdir" != "~" ]; then[0;0m
+[0;32m+		cd ~[0;0m
+[0;32m+	fi[0;0m
+[0;32m+}[0;0m
+[0;32m+#start_at_home[0;0m
+[0;32m+[0;0m
+[0;32m+# mkshare '\\vt-reddcfile01\Public' public[0;0m
+[0;32m+# mkshare '\\vt-reddcfile01\vt-nuget' vt-nuget[0;0m
+[0;32m+# mkshare '\\vt-reddcfile01\DEV_SHARED' dev-shared[0;0m
+[0;32m+# mkshare '\\vt-redsrc01\S' redsrc[0;0m
+[0;32m+# mkshare '\\vt-redvpn01\Documentation' vtdocs[0;0m
+[0;32m+[0;0m
+[0;32m+export PATH="$HOME/.cargo/bin:$PATH" # rust[0;0m
+[0;32m+export PATH="$HOME/.local/bin:$PATH" # pip3 puts stuff here[0;0m
+[0;32m+#export PATH="/usr/local/lib/android_sdk_root/cmdline-tools/tools/bin:$PATH" # Android sdkmanager[0;0m
+[0;32m+#export ANDROID_SDK_ROOT="/usr/local/lib/android_sdk_root/" # Android SDK[0;0m
+[0;32m+[0;0m
+[0;32m+if [ -f "$HOME/.cargo/env" ]; then[0;0m
+[0;32m+  . "$HOME/.cargo/env"[0;0m
+[0;32m+fi[0;0m
+[0;32m+[0;0m
+[0;32m+if [ -f "$HOME/.secrets" ]; then[0;0m
+[0;32m+  . "$HOME/.secrets"[0;0m
+[0;32m+fi[0;0m
+[0;32m+[0;0m
+[0;32m+# Ruby (via rbenv)[0;0m
+[0;32m+if [ -f "$HOME/.rbenv/bin/rbenv" ]; then[0;0m
+[0;32m+  eval "$(~/.rbenv/bin/rbenv init - bash)"[0;0m
+[0;32m+fi[0;0m
+[0;32m+[0;0m
+[0;32m+# ZVM (Zig)[0;0m
+[0;32m+export ZVM_INSTALL="$HOME/.zvm/self"[0;0m
+[0;32m+export PATH="$PATH:$HOME/.zvm/bin"[0;0m
+[0;32m+export PATH="$PATH:$ZVM_INSTALL/"[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+# Freaking Docker Compose bs[0;0m
+[0;32m+export COMPOSE_MENU=0[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+───
+/home/clayton/.bash_profile_wsl_extras:
+───
+/home/clayton/.bashrc:
+[0;31m--- home/.bashrc	2019-10-24 11:48:56.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.bashrc	2025-09-24 12:05:43.743290833 -0700[0;0m
+[0;36m@@ -1,3 +1,5 @@[0;0m
+[0;32m+#!/usr/bin/env bash[0;0m
+[0;32m+[0;0m
+[0;0m # ~/.bashrc: executed by bash(1) for non-login shells.[0;0m
+[0;0m # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)[0;0m
+[0;0m # for examples[0;0m
+[0;36m@@ -13,7 +15,7 @@[0;0m
+[0;0m HISTCONTROL=ignoreboth # ignore lines starting with space and duplicates[0;0m
+[0;0m HISTSIZE=4096[0;0m
+[0;0m HISTFILESIZE=65536[0;0m
+[0;31m-HISTIGNORE='l:ls:la:ll:fg:bg:history:explorer .'[0;0m
+[0;32m+HISTIGNORE='l:ls:la:ll:fg:bg:history:explorer'[0;0m
+[0;0m HISTTIMEFORMAT='%F %T '[0;0m
+[0;0m PROMPT_COMMAND="history -a;${PROMPT_COMMAND}"[0;0m
+[0;0m [0;0m
+[0;36m@@ -43,7 +45,7 @@[0;0m
+[0;0m # should be on the output of commands, not on the prompt[0;0m
+[0;0m #force_color_prompt=yes[0;0m
+[0;0m [0;0m
+[0;31m-if [ -n "$force_color_prompt" ]; then[0;0m
+[0;32m+if [ -n "${force_color_prompt:-}" ]; then[0;0m
+[0;0m     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then[0;0m
+[0;0m 	# We have color support; assume it's compliant with Ecma-48[0;0m
+[0;0m 	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such[0;0m
+[0;36m@@ -72,11 +74,14 @@[0;0m
+[0;0m [0;0m
+[0;0m # enable color support of ls and also add handy aliases[0;0m
+[0;0m if [ -x /usr/bin/dircolors ]; then[0;0m
+[0;31m-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"[0;0m
+[0;32m+    if [ -r ~/.dircolors ]; then[0;0m
+[0;32m+        eval "$(dircolors -b ~/.dircolors)"[0;0m
+[0;32m+    else[0;0m
+[0;32m+        eval "$(dircolors -b)"[0;0m
+[0;32m+    fi[0;0m
+[0;0m     alias ls='ls --color=auto'[0;0m
+[0;0m     #alias dir='dir --color=auto'[0;0m
+[0;0m     #alias vdir='vdir --color=auto'[0;0m
+[0;31m-[0;0m
+[0;0m     alias grep='grep --color=auto'[0;0m
+[0;0m     alias fgrep='fgrep --color=auto'[0;0m
+[0;0m     alias egrep='egrep --color=auto'[0;0m
+[0;36m@@ -86,9 +91,16 @@[0;0m
+[0;0m #export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'[0;0m
+[0;0m [0;0m
+[0;0m # some more ls aliases[0;0m
+[0;31m-alias ll='ls -alF'[0;0m
+[0;31m-alias la='ls -A'[0;0m
+[0;31m-alias l='ls -CF'[0;0m
+[0;32m+# -l long format[0;0m
+[0;32m+# -C column format[0;0m
+[0;32m+alias lll='ls --all --classify -l'[0;0m
+[0;32m+alias ll='ls --classify -l'[0;0m
+[0;32m+alias la='ls --almost-all'[0;0m
+[0;32m+alias l='ls --classify -C'[0;0m
+[0;32m+[0;0m
+[0;32m+# typing is hard[0;0m
+[0;32m+alias gitt='git'[0;0m
+[0;32m+alias qgit='git'[0;0m
+[0;0m [0;0m
+[0;0m # Add an "alert" alias for long running commands.  Use like so:[0;0m
+[0;0m #   sleep 10; alert[0;0m
+[0;36m@@ -118,8 +130,102 @@[0;0m
+[0;0m [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm[0;0m
+[0;0m [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion[0;0m
+[0;0m [0;0m
+[0;31m-## This could end terribly:[0;0m
+[0;32m+# Run batch files with cmd just by invoking their name from the command line[0;0m
+[0;32m+# This should be run once / ... reboot? I think.[0;0m
+[0;32m+# This seems reasonable...[0;0m
+[0;32m+[0;0m
+[0;32m+if [ ! -f /proc/sys/fs/binfmt_misc/WindowsBatch ]; then[0;0m
+[0;32m+  sudo sh -c "echo :WindowsBatch:E::bat::/init: > /proc/sys/fs/binfmt_misc/register"[0;0m
+[0;32m+fi[0;0m
+[0;32m+if [ ! -f /proc/sys/fs/binfmt_misc/WindowsCmd ]; then[0;0m
+[0;32m+  sudo sh -c "echo :WindowsCmd:E::cmd::/init: > /proc/sys/fs/binfmt_misc/register"[0;0m
+[0;32m+fi[0;0m
+[0;32m+[0;0m
+[0;32m+####################################################################################[0;0m
+[0;32m+# Git supports aliases defined in .gitconfig, but you cannot override Git[0;0m
+[0;32m+# builtins.[0;0m
+[0;32m+#[0;0m
+[0;32m+# Git _also_ supports custom verbs (subcommands) by searching the path for files[0;0m
+[0;32m+# named git-<verb>, but again, the built-ins take precedence[0;0m
+[0;32m+#[0;0m
+[0;32m+# This script inverts that precedence, allowing us to create scripts to provide[0;0m
+[0;32m+# better default values.[0;0m
+[0;32m+#[0;0m
+[0;32m+# TODO: If x is passed as the first parameter, do not invoke this behavior[0;0m
+[0;32m+#[0;0m
+[0;32m+# Also, git aliases are case-insensitive, but case can be useful to create[0;0m
+[0;32m+# a negated command, e.g.[0;0m
+[0;32m+# gf = grep --files-with-matches;[0;0m
+[0;32m+# gF = grep --files-without-match[0;0m
+[0;32m+#[0;0m
+[0;32m+# To support that, work around the alias insensitivity by translating "X" to "-x".[0;0m
+[0;32m+####################################################################################[0;0m
+[0;32m+function git {[0;0m
+[0;32m+    typeset -r exe="$(which git)"[0;0m
+[0;32m+    if [ -z "$exe" ][0;0m
+[0;32m+    then[0;0m
+[0;32m+        # git doesn't exist... just invoke it to get the normal "command not found" behavior[0;0m
+[0;32m+        echo " >> doing the not-found"[0;0m
+[0;32m+        command git[0;0m
+[0;32m+        return[0;0m
+[0;32m+    fi[0;0m
+[0;32m+[0;0m
+[0;32m+    typeset -r alias="git-$1"[0;0m
+[0;32m+    typeset -r script="$(which "$alias")"[0;0m
+[0;32m+    if ! [ -z "$script" ][0;0m
+[0;32m+    then[0;0m
+[0;32m+        shift[0;0m
+[0;32m+        "$script" "$@"[0;0m
+[0;32m+    else[0;0m
+[0;32m+        "$exe" "$@"[0;0m
+[0;32m+    fi[0;0m
+[0;32m+}[0;0m
+[0;32m+[0;0m
+[0;32m+# to use, put scripts in PATh[0;0m
+[0;32m+PATH=~/.git-scripts:$PATH[0;0m
+[0;32m+[0;0m
+[0;32m+#    if 'which' "$gitAlias" >/dev/null 2>&1; then[0;0m
+[0;32m+#        shift[0;0m
+[0;32m+#        "$gitAlias" "$@"[0;0m
+[0;32m+#    elif [[ "$1" =~ [A-Z] ]]; then[0;0m
+[0;32m+#        # Translate "X" to "-x" so capitals can stand-in for negation[0;0m
+[0;32m+#        translatedAlias=$(echo "$1" | sed -e 's/[A-Z]/-\l\0/g')[0;0m
+[0;32m+#        shift[0;0m
+[0;32m+#        "$exe" "$translatedAlias" "$@"[0;0m
+[0;32m+#    else[0;0m
+[0;32m+#        "$exe" "$@"[0;0m
+[0;32m+#    fi[0;0m
+[0;32m+#}[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+# from https://stackoverflow.com/a/8204925[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+# Give `git stash` some better defaults[0;0m
+[0;32m+# uhhh... it appears whatever was here got lost.[0;0m
+[0;32m+# maybe it's in .bash_profile?[0;0m
+[0;32m+# it totally works though, so...[0;0m
+[0;32m+[0;0m
+[0;32m+# Namely: assume --include-untracked and require --message[0;0m
+[0;32m+. "$HOME/.cargo/env"[0;0m
+[0;32m+[0;0m
+[0;32m+# The next line updates PATH for the Google Cloud SDK.[0;0m
+[0;32m+if [ -f '/home/clayton/google-cloud-sdk/path.bash.inc' ]; then . '/home/clayton/google-cloud-sdk/path.bash.inc'; fi[0;0m
+[0;32m+[0;0m
+[0;32m+# The next line enables shell command completion for gcloud.[0;0m
+[0;32m+if [ -f '/home/clayton/google-cloud-sdk/completion.bash.inc' ]; then . '/home/clayton/google-cloud-sdk/completion.bash.inc'; fi[0;0m
+[0;32m+[0;0m
+[0;32m+# Setup Go stuff:[0;0m
+[0;32m+[0;0m
+[0;32m+export GOROOT=/usr/local/go[0;0m
+[0;32m+export GOPATH=$HOME/gopath[0;0m
+[0;32m+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+complete -C /usr/bin/terraform terraform[0;0m
+[0;32m+[0;0m
+[0;32m+[0;0m
+[0;32m+# This should give case-INsensitive tab completion:[0;0m
+[0;32m+bind 'set completion-ignore-case on'[0;0m
+[0;0m [0;0m
+[0;31m-# run batch files with cmd just by invoking their name from the command line[0;0m
+[0;31m-  # this worked the first time but now is causing errors??[0;0m
+[0;31m-  # sudo sh -c "echo :WindowsBatch:E::bat::/init: > /proc/sys/fs/binfmt_misc/register"[0;0m
+───
+/home/clayton/.dircolors:
+[0;31m--- home/.dircolors	2019-10-24 11:51:20.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.dircolors	2025-10-14 13:27:42.777240849 -0700[0;0m
+[0;36m@@ -47,6 +47,7 @@[0;0m
+[0;0m # 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white[0;0m
+[0;0m #NORMAL 00 # no color code at all[0;0m
+[0;0m #FILE 00 # regular file: use no color at all[0;0m
+[0;32m+[0;0m
+[0;0m RESET 0 # reset to "normal" color[0;0m
+[0;0m DIR 38;5;130 # directory[0;0m
+[0;0m LINK 01;36 # symbolic link. (If you set this to 'target' instead of a[0;0m
+[0;36m@@ -232,3 +233,28 @@[0;0m
+[0;0m .opus 00;36[0;0m
+[0;0m .spx 00;36[0;0m
+[0;0m .xspf 00;36[0;0m
+[0;32m+[0;0m
+[0;32m+# An attempt to match dotfiles...? Nope, gotta do em all individuall. Sigh:[0;0m
+[0;32m+.bashrc 38;5;8[0;0m
+[0;32m+.bash_profile 38;5;8[0;0m
+[0;32m+.bash_history 38;5;8[0;0m
+[0;32m+.bash_logout 38;5;8[0;0m
+[0;32m+.dircolors 38;5;8[0;0m
+[0;32m+.gdbinit 38;5;8[0;0m
+[0;32m+.git-completion.bash 38;5;8[0;0m
+[0;32m+.gitconfig 38;5;8[0;0m
+[0;32m+.git_prompt 38;5;8[0;0m
+[0;32m+.irb-history 38;5;8[0;0m
+[0;32m+.lesshst 38;5;8[0;0m
+[0;32m+.nope_repl_history 38;5;8[0;0m
+[0;32m+.npmrc 38;5;8[0;0m
+[0;32m+.profile 38;5;8[0;0m
+[0;32m+.python_history 38;5;8[0;0m
+[0;32m+.rnd 38;5;8[0;0m
+[0;32m+.selected_editor 38;5;8[0;0m
+[0;32m+.sessionid 38;5;8[0;0m
+[0;32m+.sudo_as_admin_successful 38;5;8[0;0m
+[0;32m+.travis.conf 38;5;8[0;0m
+[0;32m+.viminfo 38;5;8[0;0m
+[0;32m+.wget-hsts 38;5;8[0;0m
+[0;32m+.xtermcontrol 38;5;8[0;0m
+───
+/home/clayton/.git-bash-prompt:
+[0;0mFile home/.git-bash-prompt/.git is a regular file while file /home/clayton/.git-bash-prompt/.git is a directory[0;0m
+[1;36mdiff --unified --recursive --ignore-space-change home/.git-bash-prompt/themes/Custom.bgptemplate /home/clayton/.git-bash-prompt/themes/Custom.bgptemplate[0;0m
+[0;31m--- home/.git-bash-prompt/themes/Custom.bgptemplate	2019-10-24 11:55:31.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.git-bash-prompt/themes/Custom.bgptemplate	2020-10-04 14:36:28.000000000 -0700[0;0m
+[0;36m@@ -58,8 +58,8 @@[0;0m
+[0;0m   # branch name(s) that will use $GIT_PROMPT_MASTER_BRANCH color[0;0m
+[0;0m   # To specify multiple branches, use[0;0m
+[0;0m   #   shopt -s extglob[0;0m
+[0;31m-  #   GIT_PROMPT_MASTER_BRANCHES='@(master|production)'[0;0m
+[0;31m-  # GIT_PROMPT_MASTER_BRANCHES="master"[0;0m
+[0;32m+  #   GIT_PROMPT_MASTER_BRANCHES='@(master|main|production)'[0;0m
+[0;32m+  # GIT_PROMPT_MASTER_BRANCHES="main"[0;0m
+[0;0m }[0;0m
+[0;0m [0;0m
+[0;0m reload_git_prompt_colors "Custom"[0;0m
+[1;36mdiff --unified --recursive --ignore-space-change home/.git-bash-prompt/themes/Default.bgptheme /home/clayton/.git-bash-prompt/themes/Default.bgptheme[0;0m
+[0;31m--- home/.git-bash-prompt/themes/Default.bgptheme	2019-10-24 11:55:31.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.git-bash-prompt/themes/Default.bgptheme	2020-10-04 14:37:09.000000000 -0700[0;0m
+[0;36m@@ -93,8 +93,8 @@[0;0m
+[0;0m   # branch name(s) that will use $GIT_PROMPT_MASTER_BRANCH color[0;0m
+[0;0m   # To specify multiple branches, use[0;0m
+[0;0m   #   shopt -s extglob[0;0m
+[0;31m-  #   GIT_PROMPT_MASTER_BRANCHES='@(master|production)'[0;0m
+[0;31m-  if [ -z ${GIT_PROMPT_MASTER_BRANCHES+x} ]; then GIT_PROMPT_MASTER_BRANCHES="master"; fi[0;0m
+[0;32m+  #   GIT_PROMPT_MASTER_BRANCHES='@(main|production)'[0;0m
+[0;32m+  if [ -z ${GIT_PROMPT_MASTER_BRANCHES+x} ]; then GIT_PROMPT_MASTER_BRANCHES="main"; fi[0;0m
+[0;0m }[0;0m
+[0;0m [0;0m
+[0;0m # call only from theme file[0;0m
+[0;36mOnly in /home/clayton/.git-bash-prompt/themes: Fira_Symbology.bgptheme[0;0m
+[1;36mdiff --unified --recursive --ignore-space-change home/.git-bash-prompt/themes/Orange_Conspiracy.bgptheme /home/clayton/.git-bash-prompt/themes/Orange_Conspiracy.bgptheme[0;0m
+[0;31m--- home/.git-bash-prompt/themes/Orange_Conspiracy.bgptheme	2019-10-24 11:55:31.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.git-bash-prompt/themes/Orange_Conspiracy.bgptheme	2021-04-12 17:53:36.000000000 -0700[0;0m
+[0;36m@@ -13,9 +13,12 @@[0;0m
+[0;0m   GIT_PROMPT_CLEAN="${BoldOrange}☻"[0;0m
+[0;0m   GIT_PROMPT_STAGED="${Orange}●"[0;0m
+[0;0m   GIT_PROMPT_CHANGED="${Red}○"[0;0m
+[0;31m-  GIT_PROMPT_CONFLICTS="${BoldRed}✶"[0;0m
+[0;32m+  GIT_PROMPT_CONFLICTS="${BoldRed}✶"               # Sometimes this exists in Fira Mono / Fira Code... ?[0;0m
+[0;32m+#  GIT_PROMPT_CONFLICTS="${BoldRed}X"              # Backup, if above is unavailable[0;0m
+[0;32m+[0;0m
+[0;0m   if [ "${GIT_PROMPT_SHOW_UNTRACKED_COUNT:-1}" == "1" ]; then[0;0m
+[0;31m-    GIT_PROMPT_UNTRACKED="${BrightOrange}◌"[0;0m
+[0;32m+#    GIT_PROMPT_UNTRACKED="${BrightOrange}◌"        # Codepoint doesn't seem to exist in Fira Mono / Fira Code[0;0m
+[0;32m+     GIT_PROMPT_UNTRACKED="${BrightOrange}⌂"        # Backup, if above is unavailable[0;0m
+[0;0m   else[0;0m
+[0;0m     GIT_PROMPT_UNTRACKED="${BrightOrange}… "[0;0m
+[0;0m   fi[0;0m
+[0;36m@@ -30,9 +33,9 @@[0;0m
+[0;0m   if [ -z "${GIT_PROMPT_START_ROOT+x}" ]; then GIT_PROMPT_START_ROOT="${GIT_PROMPT_START_USER} #${ResetColor}"; fi[0;0m
+[0;0m   if [ -z "${GIT_PROMPT_START+x}" ]; then GIT_PROMPT_START="${GIT_PROMPT_START_USER}"; fi[0;0m
+[0;0m [0;0m
+[0;31m-  ## Please do not add colors to these symbols[0;0m
+[0;32m+  ## "Please do not add colors to these symbols"[0;0m
+[0;0m   # i wanna know wtf not...[0;0m
+[0;31m-  GIT_PROMPT_SYMBOLS_NO_REMOTE_TRACKING="ᶘ"       # it's like an abandoned thread, see?[0;0m
+[0;32m+  GIT_PROMPT_SYMBOLS_NO_REMOTE_TRACKING="ζ"       # it's like an abandoned thread, see?[0;0m
+[0;0m [0;0m
+[0;0m }[0;0m
+[0;0m [0;0m
+───
+/home/clayton/.git-completion.bash:
+───
+/home/clayton/.gitconfig:
+[0;31m--- home/.gitconfig	2021-04-12 16:03:02.000000000 -0700[0;0m
+[0;32m+++ /home/clayton/.gitconfig	2025-02-28 11:17:52.968717824 -0800[0;0m
+[0;36m@@ -1,6 +1,6 @@[0;0m
+[0;0m [user][0;0m
+[0;0m 	name = Clayton Hughes[0;0m
+[0;31m-	email = <EMAIL>[0;0m
+[0;32m+	email = clayton@vthera.com[0;0m
+[0;0m 	username = ClaytonHughes[0;0m
+[0;0m [push][0;0m
+[0;0m 	default = simple[0;0m
+[0;36m@@ -8,24 +8,71 @@[0;0m
+[0;0m 	editor = vim[0;0m
+[0;0m 	autocrlf = input[0;0m
+[0;0m 	attributesfile = /home/clayton/.config/git/attributes[0;0m
+[0;32m+	autocrlf = input[0;0m
+[0;0m [alias][0;0m
+[0;31m-	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit[0;0m
+[0;32m+	authorship = log --pretty='format:%C(red)%h %C(yellow)Author: %C(bold magenta)%an %Creset(%C(magenta)%ae%Creset) %C(yellow)Commiter: %C(bold green)%cn %Creset(%Cgreen%ce%Creset)'[0;0m
+[0;32m+	lg = log --color --graph --abbrev-commit \[0;0m
+[0;32m+	         --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'[0;0m
+[0;0m 	showfiles = show --name-status[0;0m
+[0;31m-	alias = ! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /[0;0m
+[0;31m-	pushup = ! git push -u origin $(git symbolic-ref --short HEAD)[0;0m
+[0;0m 	last = log -1 HEAD[0;0m
+[0;32m+	whatadded = log --diff-filter=A[0;0m
+[0;32m+	head = "! f() { 				\[0;0m
+[0;32m+		if [ \"$1\" = \"--long\" ];		\[0;0m
+[0;32m+		then					\[0;0m
+[0;32m+			git rev-parse HEAD;		\[0;0m
+[0;32m+		else					\[0;0m
+[0;32m+			git rev-parse --short $* HEAD;	\[0;0m
+[0;32m+		fi }; f"[0;0m
+[0;32m+	alias = "! git config --get-regexp ^alias\\.	| \[0;0m
+[0;32m+		sed	-e s/^alias\\.//		  \[0;0m
+[0;32m+			-e s/[[:space:]]/:\\ /	  	  \[0;0m
+[0;32m+			-e \"s/[[:space:]]\\+/\\ /g\"	| \[0;0m
+[0;32m+		grep --color '^[^[:space:]\\:]*\\:'"[0;0m
+[0;32m+	stash = "! f() { \[0;0m
+[0;32m+		echo 'git stash has been renamed to support some defaults and requirements.' && \[0;0m
+[0;32m+		echo && \[0;0m
+[0;32m+		echo 'usage: git st MESSAGE [<options>]' && \[0;0m
+[0;32m+		echo '   or: git stp MESSAGE [<options>] for git stash --patch' && \[0;0m
+[0;32m+		echo '   or: git gitstash [<options>] for original git stash' \[0;0m
+[0;32m+		; }; f"[0;0m
+[0;32m+	st = ! git stash --include-untracked --message[0;0m
+[0;32m+	stp = ! git stash --patch --message[0;0m
+[0;32m+	gitstash = ! git stash[0;0m
+[0;32m+	pushup = ! git push -u origin $(git symbolic-ref --short HEAD)[0;0m
+[0;0m 	prune-local-branches = "! f() { \[0;0m
+[0;0m 		git branch -vv | \[0;0m
+[0;0m 		grep -E \"\\[origin/[[:graph:]]+: gone\\]\" | \[0;0m
+[0;0m 		awk '{print $1}' | \[0;0m
+[0;0m 		xargs -I % sh -c \[0;0m
+[0;31m-			\"if [ \\\"%\\\" = \\\"*\\\" ]; \[0;0m
+[0;31m-			then \[0;0m
+[0;31m-				>&2 echo \\\"The local branch $(tput setaf 5)$(git rev-parse --abbrev-ref HEAD)$(tput sgr0) is currently checked out, but no longer exists on $(tput setaf 4)$(git for-each-ref --format='%(upstream)' "refs/heads/small-features" | sed -e "s~refs/remotes/\\\\\\(origin\\\\\\)/.*~\\\\1~")$(tput sgr0). It will not be pruned.\\\" ; \[0;0m
+[0;32m+			\"if [ \\\"%\\\" = \\\"*\\\" ]; then \[0;0m
+[0;32m+				echo ' # This is the checked out branch (HEAD)' > /dev/null; \[0;0m
+[0;32m+				>&2 echo \\\"The local branch $(tput setaf 5)$(git rev-parse --abbrev-ref HEAD)$(tput sgr0) is the current branch, but no longer exists on $(tput setaf 4)$(git for-each-ref --format='%(upstream:remotename)' $(git rev-parse --symbolic-full-name HEAD))$(tput sgr0). It cannot be pruned.\\\"; \[0;0m
+[0;0m 			else \[0;0m
+[0;0m 				git branch -d % ; \[0;0m
+[0;0m 			fi\" \[0;0m
+[0;0m 		; }; f"[0;0m
+[0;32m+	recon = ! git rebase --continue[0;0m
+[0;32m+	reskip = ! git rebase --skip[0;0m
+[0;32m+	colors = "! bash -c 'f() { \[0;0m
+[0;32m+		_fmt=$( echo -n \"format:\[0;0m
+[0;32m+			%C(white) %%C(white)\\t%C(white bold) %%C(white bold)\\t %C(white dim) %%C(white dim)  \[0;0m
+[0;32m+			%n%C(black) %%C(black)\\t%C(black bold) %%C(black bold)\\t %C(black dim) %%C(black dim)\\t%C(black reverse) %%C(black reverse) \[0;0m
+[0;32m+			%n%Cred %%Cred \\t\\t%C(red bold) t%%C(red bold)\\t %C(red dim) %%C(red dim)\[0;0m
+[0;32m+			%n%Cgreen %%Cgreen\\t%C(green bold) %%C(green bold)\\t %C(green dim) %%C(green dim)\[0;0m
+[0;32m+			%n%C(yellow) %%C(yellow)\\t%C(yellow bold) %%C(yellow bold) %C(yellow dim) %%C(yellow dim)\[0;0m
+[0;32m+			%n%Cblue %%Cblue  \\t%C(blue bold) %%C(blue bold)\\t %C(blue dim) %%C(blue dim)\[0;0m
+[0;32m+			%n%C(202) %%C(202)\\t%C(208) %%C(208)\\t %C(#da680f) %%C(#da680f)\[0;0m
+[0;32m+			%n%C(magenta italic) %%C(magenta italic)\\t\\t  %C(magenta bold strike)%%C(magenta bold strike)%Creset\[0;0m
+[0;32m+			%n %C(cyan ul)%%C(cyan ul)%Creset\\t%C(cyan bold blink) %%C(cyan bold blink) \[0;0m
+[0;32m+			%n%Creset %%Creset\\t%C(default) %%C(default)\" \[0;0m
+[0;32m+			| sed --regexp-extended --expression '\\''s/[ \t]+/ /g'\\'' \[0;0m
+[0;32m+				--expression '\\''s/format: /format:/'\\'' \[0;0m
+[0;32m+				--expression '\\''s/\\\\t/\t/g'\\'' \[0;0m
+[0;32m+		; ); \[0;0m
+[0;32m+		git log --pretty=\"$_fmt\" HEAD^..HEAD \[0;0m
+[0;32m+		; }; f'"[0;0m
+[0;32m+	changes = show --name-status --pretty='format:%Cred%h%Creset - %s %Cgreen(%ar)%C(202) <%an>'[0;0m
+[0;32m+	changed-files = "! f() { git show --name-only --pretty='format:%Creset' $@ | sort | uniq; }; f"[0;0m
+[0;0m [color "diff"][0;0m
+[0;0m 	whitespace = red reverse[0;0m
+[0;0m 	wsErrorHighlight = all[0;0m
+[0;36m@@ -50,3 +97,14 @@[0;0m
+[0;0m [0;0m
+[0;0m [remote "origin"][0;0m
+[0;0m 	prune = true[0;0m
+[0;32m+[init][0;0m
+[0;32m+	defaultBranch = main[0;0m
+[0;32m+[log][0;0m
+[0;32m+	excludeDecoration = tags/archive[0;0m
+[0;32m+[pull][0;0m
+[0;32m+	rebase = false[0;0m
+[0;32m+[stash][0;0m
+[0;32m+	showIncludeUntracked = true[0;0m
+[0;32m+[0;0m
+[0;32m+[includeIf "hasconfig:remote.*.url:git@github.com:Virtual-Therapeutics/**"][0;0m
+[0;32m+	path = ~/.gitconfig_vthera[0;0m
+───
+/home/clayton/.git-scripts:
+Only in /home/clayton/.git-scripts: git-colors[0;0m
+───
+/home/clayton/.inputrc:
+───
+/home/clayton/.vimrc:
+───
